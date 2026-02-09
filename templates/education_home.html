@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Education — Cosmonix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/education_home.css') }}">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+
+  <script src="{{ url_for('static', filename='tinymce/js/tinymce/tinymce.min.js') }}"></script>
+</head>
+<body>
+  <header>
+    <div class="logo">🎓 Cosmonix — Education</div>
+    <div class="nav">
+      {% if edit_mode %}
+        <a href="{{ url_for('education_home') }}" class="btn" style="background:#93c5fd;border-radius:8px;padding:8px 12px;">Done</a>
+      {% else %}
+        <a href="{{ url_for('education_home', edit=1) }}" class="btn" style="background:#93c5fd;border-radius:8px;padding:8px 12px;">Edit</a>
+      {% endif %}
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <aside class="sidebar">
+      <div class="side-title">Browse</div>
+
+      {% if edit_mode %}
+      <div class="dept">
+        <div class="dept-head" style="cursor:default"><strong>+ Add Department</strong></div>
+        <div style="padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+          <form method="POST" action="{{ url_for('dept_create') }}" style="display:grid;gap:8px">
+            <input type="text" name="name" placeholder="Department name" required>
+            <button class="btn" type="submit">Create</button>
+          </form>
+        </div>
+      </div>
+      {% endif %}
+
+      {% for d in depts %}
+      <section class="dept" data-dept="{{ d.dept_id }}">
+        <button type="button" class="dept-head" aria-expanded="false">
+          <i class="fa-solid fa-building-columns"></i>
+          <span class="title">{{ d.name }}</span>
+
+          {% if edit_mode %}
+          <span style="display:flex;gap:6px;margin-left:8px">
+            <button class="icon-btn" title="Edit department" onclick="toggleBlock('dept-edit-{{ d.dept_id }}', event)">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <form method="POST" action="{{ url_for('dept_delete', dept_id=d.dept_id) }}"
+                  onsubmit="return confirm('Delete department and everything inside?')" style="display:inline">
+              <button type="submit" class="icon-btn" title="Delete department"><i class="fa-solid fa-trash"></i></button>
+            </form>
+            <button class="icon-btn" title="Add subject" onclick="toggleBlock('subject-new-{{ d.dept_id }}', event)">
+              <i class="fa-solid fa-circle-plus"></i>
+            </button>
+          </span>
+          {% endif %}
+
+          <i class="fa-solid fa-chevron-right chev"></i>
+        </button>
+
+        {% if edit_mode %}
+        <div id="dept-edit-{{ d.dept_id }}" style="display:none;padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+          <form method="POST" action="{{ url_for('dept_update', dept_id=d.dept_id) }}" style="display:grid;gap:8px">
+            <input type="text" name="name" value="{{ d.name }}" required>
+            <button class="btn" type="submit">Save</button>
+          </form>
+        </div>
+
+        <div id="subject-new-{{ d.dept_id }}" style="display:none;padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+          <form method="POST" action="{{ url_for('subject_create') }}" style="display:grid;gap:8px">
+            <input type="hidden" name="dept_id" value="{{ d.dept_id }}">
+            <input type="text" name="title" placeholder="Subject title" required>
+            <button class="btn" type="submit">Create Subject</button>
+          </form>
+        </div>
+        {% endif %}
+
+        <div class="topics">
+          {% for s in d.subjects %}
+          <div class="topic" data-subject="{{ s.subject_id }}">
+            <button type="button" class="topic-head" aria-expanded="false">
+              <i class="fa-solid fa-book"></i>
+              <span class="title">{{ s.title }}</span>
+
+              {% if edit_mode %}
+              <span style="display:flex;gap:6px;margin-left:8px">
+                <button class="icon-btn" title="Edit subject" onclick="toggleBlock('subject-edit-{{ s.subject_id }}', event)">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <form method="POST" action="{{ url_for('subject_delete', subject_id=s.subject_id) }}"
+                      onsubmit="return confirm('Delete subject and everything inside?')" style="display:inline">
+                  <button class="icon-btn" title="Delete subject"><i class="fa-solid fa-trash"></i></button>
+                </form>
+                <button class="icon-btn" title="Add chapter" onclick="toggleBlock('chapter-new-{{ s.subject_id }}', event)">
+                  <i class="fa-solid fa-circle-plus"></i>
+                </button>
+              </span>
+              {% endif %}
+
+              <i class="fa-solid fa-chevron-right chev"></i>
+            </button>
+
+            {% if edit_mode %}
+            <div id="subject-edit-{{ s.subject_id }}" style="display:none;padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+              <form method="POST" action="{{ url_for('subject_update', subject_id=s.subject_id) }}" style="display:grid;gap:8px">
+                <input type="text" name="title" value="{{ s.title }}" required>
+                <button class="btn" type="submit">Save</button>
+              </form>
+            </div>
+
+            <div id="chapter-new-{{ s.subject_id }}" style="display:none;padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+              <form method="POST" action="{{ url_for('chapter_create') }}" style="display:grid;gap:8px">
+                <input type="hidden" name="subject_id" value="{{ s.subject_id }}">
+                <input type="text" name="title" placeholder="Chapter title" required>
+                <button class="btn" type="submit">Create Chapter</button>
+              </form>
+            </div>
+            {% endif %}
+
+            <div class="subtopics">
+              {% for c in s.chapters %}
+              <div class="topic" data-chapter="{{ c.chapter_id }}">
+                <button type="button" class="topic-head" aria-expanded="false">
+                  <i class="fa-solid fa-layer-group"></i>
+                  <span class="title">{{ c.title }}</span>
+
+                  {% if edit_mode %}
+                  <span style="display:flex;gap:6px;margin-left:8px">
+                    <button class="icon-btn" title="Edit chapter" onclick="toggleBlock('chapter-edit-{{ c.chapter_id }}', event)">
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <form method="POST" action="{{ url_for('chapter_delete', chapter_id=c.chapter_id) }}"
+                          onsubmit="return confirm('Delete chapter and all topics?')" style="display:inline">
+                      <button class="icon-btn" title="Delete chapter"><i class="fa-solid fa-trash"></i></button>
+                    </form>
+                    <button class="icon-btn" title="Add topic" onclick="toggleBlock('topic-new-{{ c.chapter_id }}', event)">
+                      <i class="fa-solid fa-circle-plus"></i>
+                    </button>
+                  </span>
+                  {% endif %}
+
+                  <i class="fa-solid fa-chevron-right chev"></i>
+                </button>
+
+                {% if edit_mode %}
+                <div id="chapter-edit-{{ c.chapter_id }}" style="display:none;padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+                  <form method="POST" action="{{ url_for('chapter_update', chapter_id=c.chapter_id) }}" style="display:grid;gap:8px">
+                    <input type="text" name="title" value="{{ c.title }}" required>
+                    <button class="btn" type="submit">Save</button>
+                  </form>
+                </div>
+
+                <div id="topic-new-{{ c.chapter_id }}" style="display:none;padding:10px 12px;border-top:1px dashed #e8ecf7;background:#fbfcff">
+                  <form method="POST" action="{{ url_for('topic_create') }}" style="display:grid;gap:8px">
+                    <input type="hidden" name="chapter_id" value="{{ c.chapter_id }}">
+                    <input type="text" name="title" placeholder="Topic title" required>
+                    <textarea name="description" rows="3" placeholder="Description (optional)"></textarea>
+                    <button class="btn" type="submit">Create Topic</button>
+                  </form>
+                </div>
+                {% endif %}
+
+                <div class="subtopics">
+                  {% for t in c.topics %}
+                  {% if edit_mode %}
+                  <a class="subtopic-link"
+                     href="javascript:void(0)"
+                     data-title="{{ t.title|e }}"
+                     data-content="{{ (t.description or 'No content yet.')|e }}"
+                     data-topic-title="{{ c.title|e }}"
+                     data-dept-title="{{ s.title|e }}"
+                     data-url="{{ url_for('topic_update', topic_id=t.topic_id) }}"
+                     onclick="openSubtopicEditorRight(this, event)">
+                    <span class="dot"></span>
+                    <span class="title">{{ t.title }}</span>
+                    <span style="display:flex;gap:6px;margin-left:auto">
+                      <form method="POST" action="{{ url_for('topic_delete', topic_id=t.topic_id) }}"
+                            onsubmit="return confirm('Delete this topic?')" style="display:inline">
+                        <button class="icon-btn" title="Delete topic"><i class="fa-solid fa-trash"></i></button>
+                      </form>
+                    </span>
+                  </a>
+                  {% else %}
+                  <a class="subtopic-link"
+                     href="javascript:void(0)"
+                     data-title="{{ t.title|e }}"
+                     data-content="{{ (t.description or 'No content yet.')|e }}"
+                     data-topic-title="{{ c.title|e }}"
+                     data-dept-title="{{ s.title|e }}">
+                    <span class="dot"></span>
+                    <span class="title">{{ t.title }}</span>
+                  </a>
+                  {% endif %}
+                  {% else %}
+                  <div class="muted" style="padding:6px 8px;">No topics yet.</div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% else %}
+              <div class="muted" style="padding:6px 8px;">No chapters yet.</div>
+              {% endfor %}
+            </div>
+          </div>
+          {% else %}
+          <div class="card" style="margin:8px">No subjects yet.</div>
+          {% endfor %}
+        </div>
+      </section>
+      {% else %}
+      <div class="card">No departments found.</div>
+      {% endfor %}
+    </aside>
+
+    <section class="content">
+      <div id="view-pane">
+        <h1 id="content-title">Welcome 👋</h1>
+        <div class="hint" id="content-breadcrumb">Select a topic from the left to view content.</div>
+        <div class="card" id="content-body">
+          <div class="empty">Nothing selected yet.</div>
+        </div>
+      </div>
+
+      {% if edit_mode %}
+      <div id="editor-pane" style="display:none;">
+        <form id="editor-form" method="POST">
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <input id="editor-title" name="title" type="text" placeholder="Topic title"
+                  style="flex:1; padding:10px; border:1px solid #e5e7eb; border-radius:8px;" required>
+          </div>
+
+    
+          <textarea id="editor" style="height:420px; background:#fff; border:1px solid #e5e7eb; border-radius:8px;"></textarea>
+
+          <textarea name="description" id="editor-content" style="display:none;"></textarea>
+
+          <div style="margin-top:12px; display:flex; gap:10px;">
+            <button type="submit" class="btn">Save</button>
+            <button type="button" class="btn danger" onclick="closeEditorPane()">Cancel</button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="{{ url_for('static', filename='js/education_home.js') }}"></script>
+
+</body>
+</html>
