@@ -1,0 +1,92 @@
+# ===============================
+# Python / Flask
+# ===============================
+__pycache__/
+*.py[codz]
+*$py.class
+
+# Virtual environments
+.env
+.envrc
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Flask instance & cache
+instance/
+.webassets-cache
+
+# Logs
+*.log
+logs/
+
+# ===============================
+# Database
+# ===============================
+*.sqlite3
+*.db
+*.sql
+
+# ===============================
+# Build / Packaging
+# ===============================
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# ===============================
+# Testing / Coverage
+# ===============================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+
+# ===============================
+# IDEs / Editors
+# ===============================
+.vscode/
+.idea/
+.spyderproject
+.spyproject
+.ropeproject
+
+# ===============================
+# OS files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# AWS / Deployment
+# ===============================
+*.pem
+*.key
+*.crt
+.aws/
+elasticbeanstalk/
+
+# ===============================
+# User uploads (if applicable)
+# ===============================
+uploads/
+media/
+
+# ===============================
+# Jupyter
+# ===============================
+.ipynb_checkpoints/
+
+# ===============================
+# Misc
+# ===============================
+.pypirc
+.cursorignore
+.ruff_cache/
+.mypy_cache/
